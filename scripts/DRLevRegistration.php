@@ -5,6 +5,9 @@ require_once __DIR__ . '/DRLevRuCaptcha.php';
 
 class DRLevRegistration extends DRLevScript {
 
+    protected $email;
+    protected $name;
+
     public function start() {
         $this->clickElement('.next_page');
         stepSleep();
@@ -30,7 +33,7 @@ class DRLevRegistration extends DRLevScript {
         $year = rand(1989, 1997);
         $country = $this->getCountry();
         $zipOrCity = $this->getZipOrCity($country);
-        $email = $this->getRandomEmail();
+        $email = $this->getEmail();
         $this->fillElement('#birthday', $day);
         $this->fillElement('#birthmonth', $month);
         $this->fillElement('#birthyear', $year);
@@ -45,7 +48,7 @@ class DRLevRegistration extends DRLevScript {
         if (!$this->fillElement('#screenname_input', $login, true)) {
             $login = $this->driver->findElement($this->getByFromSelector('xpath=//input[@id=\'screenname_input\']/ancestor::div[1]//li[2]'))->getText();
             $this->clickElement("xpath=//input[@id='screenname_input']/ancestor::div[1]//li[2]");
-            $this->setUserName($login);
+            $this->name = $login;
             usleep(250000);
         }
         $this->fillElement('#password_input', $login.'1');
@@ -59,15 +62,23 @@ class DRLevRegistration extends DRLevScript {
         return '10001';
     }
 
+    protected function getEmail() {
+        if (empty($this->email)) {
+            $this->email = $this->getRandomEmail();
+        }
+        return $this->email;
+    }
     protected function getRandomEmail() {
-        return 'tratata@polyfaust.com';
+        return 'tratata1@polyfaust.com';
     }
 
     protected function getUserName() {
-        return 'tratata';
+        if (empty($this->name)) {
+            $this->name = $this->getRandomUserName();
+        }
+        return $this->name;
     }
-
-    protected function setUserName($userName) {
-        return true;
+    protected function getRandomUserName() {
+        return 'tratata1';
     }
 } 
