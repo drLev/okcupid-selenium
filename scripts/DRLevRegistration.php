@@ -24,6 +24,7 @@ class DRLevRegistration extends DRLevScript {
         stepSleep();
         sleep(30);
         $this->clickElement("xpath=//div[@id='signup_captcha']/following-sibling::*[contains(text(), 'Done!')]");
+        $this->fillFirstInfo();
 
     }
 
@@ -34,6 +35,8 @@ class DRLevRegistration extends DRLevScript {
         $country = $this->getCountry();
         $zipOrCity = $this->getZipOrCity($country);
         $email = $this->getEmail();
+        var_dump(md5($email));
+        throw new Exception('');
         $this->fillElement('#birthday', $day);
         $this->fillElement('#birthmonth', $month);
         $this->fillElement('#birthyear', $year);
@@ -54,6 +57,16 @@ class DRLevRegistration extends DRLevScript {
         $this->fillElement('#password_input', $login.'1');
     }
 
+    protected function fillFirstInfo() {
+        $profileText = 'asddsa';
+        $photo = 'asddsa';
+        $this->setPhoto('#okphotos_file_input');
+        $this->fillElement('#profile_textarea', $profileText);
+
+        $rand = rand(0, 1) == 1 ? 'positive' : 'negative';
+        $this->clickElement("xpath=//div[@id='answer_buttons']/button[contains(@class, '{$rand}')]");
+    }
+
     protected function getCountry() {
         return 'United States';
     }
@@ -69,7 +82,7 @@ class DRLevRegistration extends DRLevScript {
         return $this->email;
     }
     protected function getRandomEmail() {
-        return 'tratata1@polyfaust.com';
+        return 'tratata3@polyfaust.com';
     }
 
     protected function getUserName() {
@@ -79,6 +92,6 @@ class DRLevRegistration extends DRLevScript {
         return $this->name;
     }
     protected function getRandomUserName() {
-        return 'tratata1';
+        return 'tratata3';
     }
 } 
