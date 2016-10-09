@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__.'/DRLevScript.php';
+require_once __DIR__.'/../lib/DRLevConfig.php';
 
 class DRLevTempMail extends DRLevScript {
     protected $email;
@@ -34,5 +35,12 @@ class DRLevTempMail extends DRLevScript {
 
     public function getEmail() {
         return $this->email;
+    }
+
+    public static function getEmailDomain() {
+        $domains = explode('|', DRLevConfig::get('email-domain'));
+        if (!empty($domains)) {
+            return $domains[rand(0, count($domains) - 1)];
+        }
     }
 }

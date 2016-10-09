@@ -5,9 +5,6 @@ require_once __DIR__ . '/DRLevRuCaptcha.php';
 
 class DRLevRegistration extends DRLevScript {
 
-    protected $email;
-    protected $name;
-
     public function start() {
         $this->clickElement('.next_page');
         stepSleep();
@@ -19,52 +16,49 @@ class DRLevRegistration extends DRLevScript {
         stepSleep();
         $this->clickElement("xpath=//div[@id='credentials']//button[contains(text(), 'Done!')]");
         stepSleep();
-//        $captcha = new DRLevRuCaptcha($this->driver);
-//        $captcha->start();
-        stepSleep();
-        sleep(30);
+        $captcha = new DRLevRuCaptcha($this->driver, $this->data);
+        $captcha->start();
         $this->clickElement("xpath=//div[@id='signup_captcha']/following-sibling::*[contains(text(), 'Done!')]");
+        sleep(5);
         $this->fillFirstInfo();
 
     }
 
     protected function fillForm() {
-        $day = str_pad(rand(1, 28), 2, '0', STR_PAD_LEFT);
-        $month = str_pad(rand(1, 12), 2, '0', STR_PAD_LEFT);
-        $year = rand(1989, 1997);
-        $country = $this->getCountry();
-        $zipOrCity = $this->getZipOrCity($country);
-        $email = $this->getEmail();
-        var_dump(md5($email));
-        throw new Exception('');
-        $this->fillElement('#birthday', $day);
-        $this->fillElement('#birthmonth', $month);
-        $this->fillElement('#birthyear', $year);
-        $this->selectItem('#country_selectContainer', $country);
-        $this->fillElement('#zip_or_city', $zipOrCity);
-        $this->fillElement('#email1', $email);
-        $this->fillElement('#email2', $email);
+        $birthday = explode('.', $this->data['birthday']);
+        $this->fillElement('#birthday', $birthday[2]);
+        $this->fillElement('#birthmonth', $birthday[1]);
+        $this->fillElement('#birthyear', $birthday[0]);
+        $this->selectItem('#country_selectContainer', $this->data['country']);
+        $this->fillElement('#zip_or_city', $this->data['zipcode']);
+        $this->fillElement('#email1', $this->data['email']);
+        $this->fillElement('#email2', $this->data['email']);
     }
 
     protected function fillLogin() {
-        $login = $this->getUserName();
+        $login = $this->data['nick'];
         if (!$this->fillElement('#screenname_input', $login, true)) {
-            $login = $this->driver->findElement($this->getByFromSelector('xpath=//input[@id=\'screenname_input\']/ancestor::div[1]//li[2]'))->getText();
+            try {
+                $login = $this->driver->findElement($this->getByFromSelector('xpath=//input[@id=\'screenname_input\']/ancestor::div[1]//li[2]'))->getText();
+            } catch (NoSuchElementException $e) {
+                $this->data['nick'] = DRLevDataMgr::getInstance()->generateNick();
+                $this->fillLogin();
+                return;
+            }
             $this->clickElement("xpath=//input[@id='screenname_input']/ancestor::div[1]//li[2]");
-            $this->name = $login;
+            $this->data['nick'] = $login;
             usleep(250000);
         }
+//        throw new Exception('asd');
         $this->fillElement('#password_input', $login.'1');
     }
 
     protected function fillFirstInfo() {
-        $profileText = 'asddsa';
-        $photo = 'asddsa';
-        $this->setPhoto('#okphotos_file_input');
-        $this->fillElement('#profile_textarea', $profileText);
-
-        $rand = rand(0, 1) == 1 ? 'positive' : 'negative';
-        $this->clickElement("xpath=//div[@id='answer_buttons']/button[contains(@class, '{$rand}')]");
+        $this->clickElement("xpath=//div[contains(@class, 'photoupload-uploader-text')]", 10);
+        $this->driver->findElement(WebDriverBy::id('okphotos_file_input'))->sendKeys($this->data['photo']);
+        sleep(5);
+        $this->fillElement("xpath=//textarea[contains(@class, 'oknf-textarea')]", $this->data['text']);
+        $this->clickElement("xpath=//button[contains(@class, 'obprofile-submit flatbutton green')]");
     }
 
     protected function getCountry() {

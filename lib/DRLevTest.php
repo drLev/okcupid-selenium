@@ -9,12 +9,17 @@ class DRLevTest extends PHPUnit_Framework_TestCase {
      * @var RemoteWebDriver
      */
     protected $driver;
-    public function setUp() {
-        $host = 'http://localhost:4444/wd/hub'; // this is the default
+
+    protected $host = 'http://localhost:4444/wd/hub';
+    public function setUp() { }
+
+    public function restartDriver() {
+        if ($this->driver) {
+            $this->driver->quit();
+        }
         $capabilities = DesiredCapabilities::chrome();
-        $this->driver = RemoteWebDriver::create($host, $capabilities, 5000);
+        $this->driver = RemoteWebDriver::create($this->host, $capabilities, 5000);
         $this->driver->manage()->window()->maximize();
-        $this->driver->get($this->url);
     }
 
     public function tearDown() {

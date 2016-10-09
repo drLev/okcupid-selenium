@@ -6,8 +6,10 @@ abstract class DRLevScript {
      * @var RemoteWebDriver
      */
     protected $driver;
-    public function __construct(RemoteWebDriver $driver) {
+    protected $data;
+    public function __construct(RemoteWebDriver $driver, $data) {
         $this->driver = $driver;
+        $this->data = $data;
     }
 
     /**
@@ -38,9 +40,14 @@ abstract class DRLevScript {
      * @param $selector
      * @return bool
      */
-    protected function clickElement($selector) {
+    protected function clickElement($selector, $tryIterations = 1) {
         $by = $this->getByFromSelector($selector);
-        $this->driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable($by));
+        while($tryIterations-- > 0 ) {
+            try {
+                $this->driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable($by));
+                break;
+            } catch (NoSuchElementException $e) {}
+        }
         $this->driver->findElement($by)->click();
         return true;
     }
@@ -53,9 +60,12 @@ abstract class DRLevScript {
      */
     protected function fillElement($selector, $value, $checkError = false) {
         $this->clickElement($selector);
+        $by = $this->getByFromSelector($selector);
+        $this->driver->findElement($by)->clear();
         $this->driver->getKeyboard()->sendKeys($value);
         if ($checkError) {
-            sleep(2);
+            $this->driver->findElement(WebDriverBy::tagName('body'))->click();
+            sleep(1);
             $by = $this->getByFromSelector($selector);
             $el = $this->driver->findElement($by);
             try {
@@ -80,5 +90,15 @@ abstract class DRLevScript {
         $this->driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable($by));
         $this->driver->findElement($by)->click();
         return true;
+    }
+
+    public function isElementPresent($selector) {
+        $by = $this->getByFromSelector($selector);
+        try {
+            $this->driver->findElement($by);
+            return true;
+        } catch (NoSuchElementException $e) {
+            return false;
+        }
     }
 } 
