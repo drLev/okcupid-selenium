@@ -7,3 +7,4 @@ selenium-server-standalone-2.53.1.jar
 Would skip repository vendor/facebook/webdriver
 vendor/
 chromedriver.exe
+config.local.txt
