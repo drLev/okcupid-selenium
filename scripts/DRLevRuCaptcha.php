@@ -10,6 +10,7 @@ class DRLevRuCaptcha extends DRLevScript {
         $url = DRLevConfig::get('url');
         $apiKey = DRLevConfig::get('rucaptcha-api-key');
 
+        console("request captcha result\n");
         $captchaResponse = json_decode(file_get_contents("http://rucaptcha.com/in.php?key={$apiKey}&method=userrecaptcha&googlekey={$googlekey}&pageurl={$url}&json=1"), true);
 
         if ($captchaResponse['status'] == 1) {
@@ -23,8 +24,11 @@ class DRLevRuCaptcha extends DRLevScript {
             $captchaResponse = json_decode(file_get_contents("http://rucaptcha.com/res.php?key={$apiKey}&action=get&id={$captchaId}&json=1"), true);
             if ($captchaResponse['status'] == 1) {
                 $captchaResult = $captchaResponse['request'];
+                console("done\n");
                 break;
             }
+            $captchaResponse = json_encode($captchaResponse);
+            console("{$captchaResponse}\n");
             sleep(2);
         }
         if (empty($captchaResult)) {

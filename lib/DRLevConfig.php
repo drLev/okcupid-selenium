@@ -14,7 +14,11 @@ class DRLevConfig {
     }
 
     private static function load() {
-        $rows = file(__DIR__.'/../config.txt');
+        if (file_exists(__DIR__.'/../config.local.txt')) {
+            $rows = file(__DIR__.'/../config.local.txt');
+        } else {
+            $rows = file(__DIR__.'/../config.txt');
+        }
         foreach ($rows as $row) {
             $items = explode('=', $row);
             $key = trim(array_shift($items));

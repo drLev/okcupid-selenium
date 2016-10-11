@@ -7,9 +7,9 @@ abstract class DRLevScript {
      */
     protected $driver;
     protected $data;
-    public function __construct(RemoteWebDriver $driver, $data) {
+    public function __construct(RemoteWebDriver $driver, &$data) {
         $this->driver = $driver;
-        $this->data = $data;
+        $this->data = &$data;
     }
 
     /**
@@ -38,15 +38,26 @@ abstract class DRLevScript {
 
     /**
      * @param $selector
+     * @param int $tryIterations
      * @return bool
+     * @throws NoSuchElementException
      */
     protected function clickElement($selector, $tryIterations = 1) {
         $by = $this->getByFromSelector($selector);
         while($tryIterations-- > 0 ) {
+            $done = false;
+            $lastErr = null;
             try {
                 $this->driver->wait()->until(WebDriverExpectedCondition::elementToBeClickable($by));
+                $done = true;
                 break;
-            } catch (NoSuchElementException $e) {}
+            } catch (NoSuchElementException $e) {
+                $lastErr = $e;
+            }
+
+            if (!$done && $lastErr) {
+                throw $lastErr;
+            }
         }
         $this->driver->findElement($by)->click();
         return true;
@@ -65,7 +76,7 @@ abstract class DRLevScript {
         $this->driver->getKeyboard()->sendKeys($value);
         if ($checkError) {
             $this->driver->findElement(WebDriverBy::tagName('body'))->click();
-            sleep(1);
+            sleep(3);
             $by = $this->getByFromSelector($selector);
             $el = $this->driver->findElement($by);
             try {

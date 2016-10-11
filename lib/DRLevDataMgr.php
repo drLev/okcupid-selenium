@@ -51,7 +51,7 @@ class DRLevDataMgr {
             $photos = scandir($photosDir);
             foreach ($photos as $photo) {
                 if (!in_array($photo, array('.', '..'))) {
-                    $photo = $photosDir.'/'.$photo;
+                    $photo = $photosDir.DIRECTORY_SEPARATOR.$photo;
                     if (file_exists($photo)) {
                         $this->photos[] = $photo;
                     }
@@ -104,5 +104,13 @@ class DRLevDataMgr {
         }
         file_put_contents($nicksFile, $data);
         return $nick;
+    }
+
+    public function setResult($data, $errorMessage = '') {
+        $string = "{$data['nick']}|{$data['[password']}|{$data['email']}\n";
+        file_put_contents(DRLevConfig::get('profile-result'), $string, FILE_APPEND);
+        if ($errorMessage) {
+            file_put_contents('./log/error.txt', $errorMessage, FILE_APPEND);
+        }
     }
 }

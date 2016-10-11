@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/DRLevScript.php';
 require_once __DIR__ . '/DRLevRuCaptcha.php';
+require_once __DIR__ . '/DRLevTempMail.php';
 
 class DRLevRegistration extends DRLevScript {
 
@@ -19,9 +20,6 @@ class DRLevRegistration extends DRLevScript {
         $captcha = new DRLevRuCaptcha($this->driver, $this->data);
         $captcha->start();
         $this->clickElement("xpath=//div[@id='signup_captcha']/following-sibling::*[contains(text(), 'Done!')]");
-        sleep(5);
-        $this->fillFirstInfo();
-
     }
 
     protected function fillForm() {
@@ -49,16 +47,7 @@ class DRLevRegistration extends DRLevScript {
             $this->data['nick'] = $login;
             usleep(250000);
         }
-//        throw new Exception('asd');
         $this->fillElement('#password_input', $login.'1');
-    }
-
-    protected function fillFirstInfo() {
-        $this->clickElement("xpath=//div[contains(@class, 'photoupload-uploader-text')]", 10);
-        $this->driver->findElement(WebDriverBy::id('okphotos_file_input'))->sendKeys($this->data['photo']);
-        sleep(5);
-        $this->fillElement("xpath=//textarea[contains(@class, 'oknf-textarea')]", $this->data['text']);
-        $this->clickElement("xpath=//button[contains(@class, 'obprofile-submit flatbutton green')]");
     }
 
     protected function getCountry() {

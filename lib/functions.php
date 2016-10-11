@@ -9,3 +9,18 @@ if (!defined('STEP_TIMEOUT')) {
 function stepSleep() {
     usleep(STEP_TIMEOUT);
 }
+
+function console($msg) {
+    echo $msg;
+    flush();
+    ob_flush();
+}
+
+function dump() {
+    $args = (func_get_args());
+    foreach ($args as $arg) {
+        var_dump($arg);
+    }
+    flush();
+    ob_flush();
+}
